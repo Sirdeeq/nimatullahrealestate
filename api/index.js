@@ -3,11 +3,12 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 import userRouter from "./routes/user.route.js";
+import authRouter from "./routes/auth.route.js";
 
 dotenv.config();
 
 mongoose
-  .connect(process.env.MONGO_DB)
+  .connect(process.env.MANGO_DB)
   .then(() => {
     console.log("Connected to MangoDb Successfully");
   })
@@ -16,9 +17,14 @@ mongoose
   });
 
 const app = express();
+app.use(express.json());
+
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000!!!");
 });
 
+app.use(express.urlencoded({ extended: true }));
+
 app.use("/api/user", userRouter);
+app.use("/api/auth", authRouter);
