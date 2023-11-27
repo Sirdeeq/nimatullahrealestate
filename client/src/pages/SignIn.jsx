@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure
+} from "../redux/user/userSlice";
+
 import Loading from "../components/Loading";
 import toast from "react-hot-toast";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [errors, setErrors] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { error, loading } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -18,7 +26,7 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(signInStart());
       const res = await fetch("http://localhost:3000/api/auth/signin", {
         method: "POST",
         headers: {
@@ -29,19 +37,16 @@ export default function SignIn() {
       const data = await res.json();
       console.log(data);
       if (data.success === false) {
-        setLoading(false);
+        dispatch(signInFailure(data.message));
         toast.error(data.message);
-        setErrors(data.message);
         return;
       }
-      setLoading(false);
-      setErrors(null);
+      dispatch(signInSuccess(data));
       toast.success("User signed in successfully");
       navigate("/");
     } catch (error) {
-      setLoading(false);
+      dispatch(signInFailure(error.message));
       toast.error(error.message);
-      setErrors(error.message);
     }
   };
   return (
@@ -76,7 +81,7 @@ export default function SignIn() {
           <span className="text-blue-700">Sign Up</span>
         </Link>
       </div>
-      {errors && <p className="text-red-500">{errors}</p>}
+      {error && <p className="text-red-500">{error}</p>}
     </div>
   );
 }
