@@ -11,7 +11,7 @@ import authRouter from "./routes/auth.route.js";
 dotenv.config();
 
 mongoose
-  .connect(process.env.MANGO_DB)
+  .connect(process.env.DB)
   .then(() => {
     console.log("Connected to MangoDb Successfully");
   })
